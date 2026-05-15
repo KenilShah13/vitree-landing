@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service - Vitree</title>
+    <meta name="description" content="Vitree Terms of Service">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0A0A0D;
+            --bg-surface: #121218;
+            --teal: #5ABA9A;
+            --teal-light: #7DD3C0;
+            --text-primary: #F5F5F7;
+            --text-secondary: #8E8E93;
+            --text-muted: #636366;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        header {
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(90, 186, 154, 0.2);
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--teal);
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.8;
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--teal-light);
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        ul, ol {
+            color: var(--text-secondary);
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        strong {
+            color: var(--text-primary);
+        }
+
+        .warning-box {
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid rgba(255, 149, 0, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .warning-box p {
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(90, 186, 154, 0.2);
+            text-align: center;
+        }
+
+        footer p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--teal);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="back-link">← Back to Vitree</a>
+            <h1>Terms of Service</h1>
+            <p class="last-updated">Last updated: May 14, 2026</p>
+        </header>
+
+        <main>
+            <h2>1. Agreement to Terms</h2>
+            <p>By downloading or using Vitree ("the App"), you agree to these Terms of Service. If you do not agree, do not use the App.</p>
+
+            <h2>2. Description of Service</h2>
+            <p>Vitree is a health and wellness application that displays recovery metrics calculated from data you have recorded in Apple HealthKit. The App reads your heart rate variability, resting heart rate, and sleep data to compute a recovery score.</p>
+
+            <div class="warning-box">
+                <p><strong>Medical Disclaimer:</strong> Vitree is not a medical device. The recovery scores and health metrics displayed are for informational and wellness purposes only. They are not intended to diagnose, treat, cure, or prevent any disease or health condition. Always consult a qualified healthcare provider for medical advice.</p>
+            </div>
+
+            <h2>3. Eligibility</h2>
+            <p>You must be at least 13 years old to use Vitree. By using the App, you represent that you meet this age requirement.</p>
+
+            <h2>4. Apple HealthKit Data</h2>
+            <p>Vitree requires access to Apple HealthKit to function. By granting this access, you acknowledge that:</p>
+            <ul>
+                <li>The App will read your HRV, resting heart rate, and sleep data</li>
+                <li>This data is processed locally on your device</li>
+                <li>This data is never transmitted to external servers</li>
+                <li>You can revoke access at any time in iOS Settings</li>
+            </ul>
+
+            <h2>5. Accuracy and Limitations</h2>
+            <p>Recovery scores are calculated using algorithms based on your personal baseline data. You understand that:</p>
+            <ul>
+                <li>Scores depend on the quality and consistency of your Apple Watch data</li>
+                <li>Results may vary based on watch placement, sleep patterns, and individual physiology</li>
+                <li>The 7-day baseline period affects initial score accuracy</li>
+                <li>Users with certain conditions (e.g., atrial fibrillation) may receive inaccurate readings</li>
+            </ul>
+
+            <h2>6. License</h2>
+            <p>Darkcode grants you a limited, non-exclusive, non-transferable license to use Vitree for personal, non-commercial purposes. You may not:</p>
+            <ul>
+                <li>Copy, modify, or distribute the App</li>
+                <li>Reverse engineer or attempt to extract source code</li>
+                <li>Use the App for any unlawful purpose</li>
+                <li>Sublicense or transfer your rights to others</li>
+            </ul>
+
+            <h2>7. Purchases</h2>
+            <p>Vitree is available as a one-time purchase through the Apple App Store. All purchases are subject to Apple's terms and refund policies. We do not process payments directly.</p>
+
+            <h2>8. Updates</h2>
+            <p>We may release updates to improve functionality or fix issues. Continued use of the App after updates constitutes acceptance of any changes.</p>
+
+            <h2>9. Termination</h2>
+            <p>You may stop using Vitree at any time by deleting the App. We reserve the right to discontinue the App or revoke access for violations of these terms.</p>
+
+            <h2>10. Disclaimer of Warranties</h2>
+            <p>Vitree is provided "as is" without warranties of any kind, express or implied. We do not warrant that the App will be error-free, uninterrupted, or meet your specific requirements.</p>
+
+            <h2>11. Limitation of Liability</h2>
+            <p>To the maximum extent permitted by law, Darkcode shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the App, including but not limited to health decisions made based on recovery scores.</p>
+
+            <h2>12. Governing Law</h2>
+            <p>These Terms are governed by the laws of Ontario, Canada, without regard to conflict of law principles.</p>
+
+            <h2>13. Changes to Terms</h2>
+            <p>We may update these Terms from time to time. The updated version will be posted here with a new effective date. Continued use after changes constitutes acceptance.</p>
+
+            <h2>14. Contact</h2>
+            <p>For questions about these Terms, contact:</p>
+            <p><strong>support@darkcode.app</strong></p>
+        </main>
+
+        <footer>
+            <p>© 2026 Darkcode. <a href="/privacy.html">Privacy Policy</a></p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vitree — Recovery Insights, Clear as Glass</title>
+    <meta name="description" content="Privacy-first health tracker for Apple Watch. HRV, sleep, recovery score. No subscription, no cloud. $4.99 one-time.">
+    <meta name="theme-color" content="#0A0A0D">
+    <link rel="icon" type="image/svg+xml" href="/logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050506;
+            --bg: #0A0A0D;
+            --surface: #131316;
+            --surface-glass: rgba(255,255,255,0.03);
+            --border-glass: rgba(255,255,255,0.06);
+            --text-primary: #FAFAFA;
+            --text-secondary: rgba(255,255,255,0.55);
+            --text-tertiary: rgba(255,255,255,0.3);
+            --accent: #5ABA9A;
+            --accent-glow: rgba(90,186,154,0.4);
+            --accent-subtle: rgba(90,186,154,0.08);
+            --prism-cyan: #7DD3FC;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 clamp(20px, 5vw, 48px);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fraunces', serif;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+
+        /* Background */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+            mask-image: radial-gradient(ellipse at 50% 0%, black 0%, transparent 70%);
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(120px);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+            top: -400px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 0;
+            transition: all 0.4s ease;
+        }
+
+        header.scrolled {
+            background: rgba(10,10,13,0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+        }
+
+        .logo-text {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 36px;
+        }
+
+        nav a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            transition: color 0.2s;
+        }
+
+        nav a:hover { color: var(--text-primary); }
+
+        .nav-cta {
+            padding: 10px 20px;
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            color: var(--text-primary) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            background: var(--accent-subtle);
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            nav { display: none; }
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 140px 24px 100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px 8px 10px;
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.2s;
+        }
+
+        .eyebrow-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .hero h1 {
+            font-size: clamp(44px, 9vw, 80px);
+            line-height: 1.08;
+            margin-bottom: 24px;
+            max-width: 850px;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.4s;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-sub {
+            font-size: clamp(16px, 2.2vw, 19px);
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin-bottom: 48px;
+            font-weight: 300;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.6s;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glass Score Orb */
+        .score-orb {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 0 auto 52px;
+            opacity: 0;
+            animation: fadeUp 1s ease forwards 0.1s;
+        }
+
+        .orb-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(from 220deg, var(--accent) 0deg, var(--prism-cyan) 120deg, transparent 240deg);
+            mask: radial-gradient(farthest-side, transparent calc(100% - 5px), black calc(100% - 4px));
+            animation: orbRotate 25s linear infinite;
+        }
+
+        @keyframes orbRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .orb-glass {
+            position: absolute;
+            inset: 18px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.06) 0%, transparent 60%), var(--surface);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 80px rgba(90,186,154,0.12), inset 0 0 60px rgba(0,0,0,0.5);
+        }
+
+        .orb-score {
+            font-family: 'Fraunces', serif;
+            font-size: 68px;
+            font-weight: 300;
+            color: var(--text-primary);
+            line-height: 1;
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .orb-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            margin-top: 8px;
+        }
+
+        .orb-glow {
+            position: absolute;
+            inset: -50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(50px);
+            opacity: 0.4;
+            z-index: -1;
+        }
+
+        /* CTA */
+        .cta-group {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 0.8s;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 26px;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            background: #6FCBAB;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 40px -10px var(--accent-glow);
+        }
+
+        .btn-secondary {
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.1);
+        }
+
+        .btn svg { width: 20px; height: 20px; }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-tertiary);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            opacity: 0;
+            animation: fadeUp 0.8s ease forwards 1.2s;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 36px;
+            background: linear-gradient(to bottom, var(--text-tertiary), transparent);
+            animation: scrollPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 1; transform: scaleY(1); }
+            50% { opacity: 0.3; transform: scaleY(0.6); }
+        }
+
+        /* Features */
+        .features {
+            padding: 140px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 72px;
+        }
+
+        .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            margin-bottom: 18px;
+            display: block;
+        }
+
+        .section-title {
+            font-size: clamp(30px, 4.5vw, 48px);
+            max-width: 580px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 600px) { .features-grid { grid-template-columns: 1fr; } }
+
+        .feature-card {
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 32px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+            transform: translateY(-4px);
+        }
+
+        .feature-card:hover::before { opacity: 1; }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: var(--accent-subtle);
+            border: 1px solid rgba(90,186,154,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 22px;
+            font-size: 22px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        /* Privacy */
+        .privacy {
+            padding: 140px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .privacy-inner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 72px;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .privacy-inner { grid-template-columns: 1fr; gap: 56px; }
+        }
+
+        .privacy-visual {
+            position: relative;
+            aspect-ratio: 1;
+            max-width: 420px;
+        }
+
+        .privacy-orb {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.04) 0%, transparent 50%), var(--surface);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .privacy-orb svg {
+            width: 72px;
+            height: 72px;
+            color: var(--accent);
+            opacity: 0.75;
+        }
+
+        .privacy-ring {
+            position: absolute;
+            inset: -24px;
+            border-radius: 50%;
+            border: 1px dashed var(--border-glass);
+            animation: slowRotate 80s linear infinite;
+        }
+
+        @keyframes slowRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .privacy-content .section-label { text-align: left; }
+
+        .privacy-content h2 {
+            font-size: clamp(30px, 3.8vw, 42px);
+            margin-bottom: 22px;
+        }
+
+        .privacy-content > p {
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            font-size: 15px;
+        }
+
+        .privacy-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .privacy-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .privacy-check {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--accent-subtle);
+            border: 1px solid rgba(90,186,154,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--accent);
+            font-size: 13px;
+        }
+
+        .privacy-list strong { display: block; margin-bottom: 3px; }
+        .privacy-list span { color: var(--text-secondary); font-size: 13px; }
+
+        /* Pricing */
+        .pricing {
+            padding: 140px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .price-card {
+            max-width: 440px;
+            margin: 0 auto;
+            background: var(--surface-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 52px 44px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .price-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+            filter: blur(50px);
+            opacity: 0.25;
+        }
+
+        .price-amount {
+            font-family: 'Fraunces', serif;
+            font-size: 72px;
+            font-weight: 300;
+            margin-bottom: 6px;
+            position: relative;
+        }
+
+        .price-note {
+            color: var(--text-secondary);
+            margin-bottom: 36px;
+            font-size: 14px;
+        }
+
+        .price-features {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 36px;
+        }
+
+        .price-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .price-features li:last-child { border-bottom: none; }
+        .price-features .check { color: var(--accent); font-size: 15px; }
+
+        .price-card .btn-primary {
+            width: 100%;
+            justify-content: center;
+            padding: 17px 28px;
+            font-size: 15px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 52px 0;
+            border-top: 1px solid var(--border-glass);
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .footer-brand span {
+            color: var(--text-tertiary);
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 28px;
+        }
+
+        .footer-links a {
+            color: var(--text-tertiary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover { color: var(--text-secondary); }
+
+        /* Reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(36px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+        .reveal-delay-5 { transition-delay: 0.5s; }
+        .reveal-delay-6 { transition-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="ambient-glow"></div>
+
+    <header>
+        <div class="container header-inner">
+            <a href="/" class="logo">
+                <svg class="logo-mark" viewBox="0 0 36 36" fill="none">
+                    <rect width="36" height="36" rx="10" fill="url(#logo-gradient)"/>
+                    <path d="M18 8L26 14V22L18 28L10 22V14L18 8Z" stroke="#0A0A0D" stroke-width="2" fill="none"/>
+                    <circle cx="18" cy="18" r="4" fill="#0A0A0D"/>
+                    <defs>
+                        <linearGradient id="logo-gradient" x1="0" y1="0" x2="36" y2="36">
+                            <stop offset="0%" stop-color="#5ABA9A"/>
+                            <stop offset="100%" stop-color="#7DD3FC"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">Vitree</span>
+            </a>
+            <nav>
+                <a href="#features">Features</a>
+                <a href="#privacy">Privacy</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#" class="nav-cta">Download</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="score-orb">
+            <div class="orb-glow"></div>
+            <div class="orb-ring"></div>
+            <div class="orb-glass">
+                <span class="orb-score">87</span>
+                <span class="orb-label">Recovery</span>
+            </div>
+        </div>
+
+        <span class="hero-eyebrow">
+            <span class="eyebrow-dot"></span>
+            For Apple Watch
+        </span>
+
+        <h1>Recovery insights,<br><em>clear as glass</em></h1>
+
+        <p class="hero-sub">Track HRV, sleep, and heart rate. Get a daily recovery score. No subscription. No cloud. Your data stays yours.</p>
+
+        <div class="cta-group">
+            <a href="#" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                App Store
+            </a>
+            <a href="#features" class="btn btn-secondary">Learn More</a>
+        </div>
+
+        <div class="scroll-indicator">
+            <span>Scroll</span>
+            <div class="scroll-line"></div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Features</span>
+                <h2 class="section-title">Everything you need to understand your recovery</h2>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card reveal reveal-delay-1">
+                    <div class="feature-icon">📊</div>
+                    <h3>Recovery Score</h3>
+                    <p>A daily 0-100 score calculated from your HRV and resting heart rate against your personal 14-day baseline.</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-2">
+                    <div class="feature-icon">💓</div>
+                    <h3>HRV Tracking</h3>
+                    <p>Heart rate variability measured overnight by your Apple Watch. The gold standard metric for recovery.</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-3">
+                    <div class="feature-icon">😴</div>
+                    <h3>Sleep Analysis</h3>
+                    <p>Total duration plus stages—deep, REM, and core sleep. See how rest affects your recovery.</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-4">
+                    <div class="feature-icon">📈</div>
+                    <h3>Trend Charts</h3>
+                    <p>View 7, 14, or 30 days of any metric. Spot patterns and understand how your body responds.</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-5">
+                    <div class="feature-icon">⌚</div>
+                    <h3>Watch Complications</h3>
+                    <p>Glanceable recovery score on your watch face. Four complication styles to choose from.</p>
+                </div>
+                <div class="feature-card reveal reveal-delay-6">
+                    <div class="feature-icon">🔒</div>
+                    <h3>100% Private</h3>
+                    <p>No account. No cloud. No tracking. Data syncs between iPhone and Watch via Apple Health only.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="privacy" id="privacy">
+        <div class="container">
+            <div class="privacy-inner">
+                <div class="privacy-visual reveal">
+                    <div class="privacy-ring"></div>
+                    <div class="privacy-orb">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            <path d="M9 12l2 2 4-4"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="privacy-content">
+                    <span class="section-label reveal">Privacy First</span>
+                    <h2 class="reveal reveal-delay-1">Your health data belongs to you. Period.</h2>
+                    <p class="reveal reveal-delay-2">We built Vitree for people tired of apps that harvest personal data. No cloud, no account, no analytics. We literally cannot see your data.</p>
+
+                    <ul class="privacy-list">
+                        <li class="reveal reveal-delay-3">
+                            <span class="privacy-check">✓</span>
+                            <div><strong>No account required</strong><span>Download and start tracking immediately.</span></div>
+                        </li>
+                        <li class="reveal reveal-delay-4">
+                            <span class="privacy-check">✓</span>
+                            <div><strong>No cloud sync</strong><span>Data stays on your iPhone and Watch.</span></div>
+                        </li>
+                        <li class="reveal reveal-delay-5">
+                            <span class="privacy-check">✓</span>
+                            <div><strong>No analytics or tracking</strong><span>We don't know who you are or what you do.</span></div>
+                        </li>
+                        <li class="reveal reveal-delay-6">
+                            <span class="privacy-check">✓</span>
+                            <div><strong>No subscription</strong><span>Pay once, own it forever.</span></div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-label">Pricing</span>
+                <h2 class="section-title">One price. No surprises.</h2>
+            </div>
+
+            <div class="price-card reveal reveal-delay-1">
+                <div class="price-amount">$4.99</div>
+                <p class="price-note">One-time purchase. Yours forever.</p>
+
+                <ul class="price-features">
+                    <li><span class="check">✓</span> Full recovery algorithm</li>
+                    <li><span class="check">✓</span> All metrics and trends</li>
+                    <li><span class="check">✓</span> watchOS complications</li>
+                    <li><span class="check">✓</span> All future updates</li>
+                    <li><span class="check">✓</span> 3-day free preview</li>
+                </ul>
+
+                <a href="#" class="btn btn-primary">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    Get Vitree on App Store
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <a href="/" class="logo">
+                    <svg class="logo-mark" width="28" height="28" viewBox="0 0 36 36" fill="none">
+                        <rect width="36" height="36" rx="10" fill="url(#logo-gradient-footer)"/>
+                        <path d="M18 8L26 14V22L18 28L10 22V14L18 8Z" stroke="#0A0A0D" stroke-width="2" fill="none"/>
+                        <circle cx="18" cy="18" r="4" fill="#0A0A0D"/>
+                        <defs>
+                            <linearGradient id="logo-gradient-footer" x1="0" y1="0" x2="36" y2="36">
+                                <stop offset="0%" stop-color="#5ABA9A"/>
+                                <stop offset="100%" stop-color="#7DD3FC"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">Vitree</span>
+                </a>
+                <span>© 2026 Darkcode</span>
+            </div>
+            <div class="footer-links">
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="mailto:support@darkcode.app">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const header = document.querySelector('header');
+        window.addEventListener('scroll', () => {
+            header.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        const reveals = document.querySelectorAll('.reveal');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+        reveals.forEach(el => observer.observe(el));
+
+        const scoreEl = document.querySelector('.orb-score');
+        let currentScore = 0;
+        const targetScore = 87;
+        const startTime = performance.now();
+        function animateScore(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / 2000, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            scoreEl.textContent = Math.round(eased * targetScore);
+            if (progress < 1) requestAnimationFrame(animateScore);
+        }
+        setTimeout(() => requestAnimationFrame(animateScore), 500);
+    </script>
+</body>
+</html>
